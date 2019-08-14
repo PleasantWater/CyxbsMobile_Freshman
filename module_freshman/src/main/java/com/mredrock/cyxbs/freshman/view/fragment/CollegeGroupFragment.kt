@@ -41,6 +41,7 @@ class CollegeGroupFragment : BaseFragment<IFragmentCollegeGroupView, IFragmentCo
     private lateinit var mEditText: EditText
     private lateinit var mManager: InputMethodManager
     private var mSearchResultMaxHeight = 0
+    private var mIsCanShowSearchResult = false
 
     override fun onCreateView(view: View, savedInstanceState: Bundle?) {
         mCollegeGroup = view.findViewById(R.id.rv_online_communication_group)
@@ -81,7 +82,13 @@ class CollegeGroupFragment : BaseFragment<IFragmentCollegeGroupView, IFragmentCo
         resetHint()
         mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                if (mManager.isAcceptingText) presenter?.search(mEditText.text.toString())
+                mIsCanShowSearchResult = if (p0?.isBlank() == true) {
+                    mSearchResult.gone()
+                    false
+                } else {
+                    true
+                }
+                if (mManager.isAcceptingText && p0?.isNotBlank() != false) presenter?.search(mEditText.text.toString())
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -105,7 +112,9 @@ class CollegeGroupFragment : BaseFragment<IFragmentCollegeGroupView, IFragmentCo
     }
 
     override fun showSearchResult(collegeGroup: List<CollegeGroupText>) {
-        val totalHeight = dip(53) * collegeGroup.size
+        if (!mIsCanShowSearchResult) return
+        val itemCount = if (collegeGroup.isEmpty()) 1 else collegeGroup.size
+        val totalHeight = dip(53) * itemCount
         val layoutParam  = mSearchResult.layoutParams
         if (mSearchResultMaxHeight != 0 && mSearchResultMaxHeight < totalHeight) {
             layoutParam.height = mSearchResultMaxHeight

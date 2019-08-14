@@ -42,6 +42,7 @@ class FellowTownsmanGroupFragment : BaseFragment<IFragmentFellowTownsmanGroupVie
     private lateinit var mSearchResultAdapter: SearchResultFellowTownsmanAdapter
     private lateinit var mManager: InputMethodManager
     private var mSearchResultMaxHeight = 0
+    private var mIsCanShowSearchResult = false
 
     override fun onCreateView(view: View, savedInstanceState: Bundle?) {
         mFellowTownsmanGroup = view.findViewById(R.id.rv_online_communication_group)
@@ -80,7 +81,13 @@ class FellowTownsmanGroupFragment : BaseFragment<IFragmentFellowTownsmanGroupVie
         resetHint()
         mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                if (mManager.isAcceptingText) presenter?.search(mEditText.text.toString())
+                mIsCanShowSearchResult = if (p0?.isBlank() == true) {
+                    mSearchResult.gone()
+                    false
+                } else {
+                    true
+                }
+                if (mManager.isAcceptingText && p0?.isNotBlank() != false) presenter?.search(mEditText.text.toString())
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -104,7 +111,9 @@ class FellowTownsmanGroupFragment : BaseFragment<IFragmentFellowTownsmanGroupVie
     }
 
     override fun showSearchResult(fellowTownsmanGroup: List<FellowTownsmanGroupText>) {
-        val totalHeight = dip(53) * fellowTownsmanGroup.size
+        if (!mIsCanShowSearchResult) return
+        val itemCount = if (fellowTownsmanGroup.isEmpty()) 1 else fellowTownsmanGroup.size
+        val totalHeight = dip(53) * itemCount
         val layoutParam  = mSearchResult.layoutParams
         if (mSearchResultMaxHeight != 0 && mSearchResultMaxHeight < totalHeight) {
             layoutParam.height = mSearchResultMaxHeight
