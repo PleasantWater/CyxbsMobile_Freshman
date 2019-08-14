@@ -11,7 +11,9 @@
     <ImageView
         android:id="@+id/iv_recycle_item_online_activity_poster"
         android:layout_width="match_parent"
-        android:layout_height="191dp"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
         android:layout_gravity="top|center"
         android:layout_marginTop="18dp"
         android:layout_marginStart="18dp"
