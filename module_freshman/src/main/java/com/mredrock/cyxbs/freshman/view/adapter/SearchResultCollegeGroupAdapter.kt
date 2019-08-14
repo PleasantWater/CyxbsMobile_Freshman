@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.mredrock.cyxbs.common.BaseApp
 import com.mredrock.cyxbs.freshman.R
 import com.mredrock.cyxbs.freshman.bean.CollegeGroupText
 import com.mredrock.cyxbs.freshman.config.INTENT_DATA
@@ -18,6 +19,7 @@ import com.mredrock.cyxbs.freshman.view.activity.CopyQQNumberActivity
  */
 class SearchResultCollegeGroupAdapter : RecyclerView.Adapter<SearchResultCollegeGroupViewHolder>() {
     private var mCollegeGroupText: List<CollegeGroupText> = listOf()
+    private var mIsNeedShowHint = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultCollegeGroupViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
@@ -31,16 +33,25 @@ class SearchResultCollegeGroupAdapter : RecyclerView.Adapter<SearchResultCollege
         val collegeGroupText = mCollegeGroupText[position]
         holder.mName.text = collegeGroupText.name
 
-        holder.itemView.setOnClickListener {
-            val intent = Intent(it.context, CopyQQNumberActivity::class.java)
-            intent.putExtra(INTENT_NAME, collegeGroupText.name)
-            intent.putExtra(INTENT_DATA, collegeGroupText.data)
-            it.context.startActivity(intent)
+        if (!mIsNeedShowHint) {
+            holder.itemView.setOnClickListener {
+                val intent = Intent(it.context, CopyQQNumberActivity::class.java)
+                intent.putExtra(INTENT_NAME, collegeGroupText.name)
+                intent.putExtra(INTENT_DATA, collegeGroupText.data)
+                it.context.startActivity(intent)
+            }
         }
     }
 
     fun refreshData(collegeGroupText: List<CollegeGroupText>) {
-        mCollegeGroupText = collegeGroupText
+        mCollegeGroupText = if (collegeGroupText.isEmpty()) {
+            mIsNeedShowHint = true
+            List(1) { CollegeGroupText("",
+                    BaseApp.context.resources.getString(R.string.freshman_no_search_result)) }
+        } else {
+            mIsNeedShowHint = false
+            collegeGroupText
+        }
         notifyDataSetChanged()
     }
 
