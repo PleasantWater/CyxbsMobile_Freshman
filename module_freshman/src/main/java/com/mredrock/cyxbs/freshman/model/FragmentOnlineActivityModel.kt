@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import com.mredrock.cyxbs.common.utils.extensions.safeSubscribeBy
 import com.mredrock.cyxbs.freshman.base.BaseModel
 import com.mredrock.cyxbs.freshman.bean.OnlineActivityText
+import com.mredrock.cyxbs.freshman.config.API_BASE_IMG_URL
 import com.mredrock.cyxbs.freshman.interfaces.model.IFragmentOnlineActivityModel
 import com.mredrock.cyxbs.freshman.interfaces.network.OnlineActivityService
 import com.mredrock.cyxbs.freshman.util.network.ApiGenerator
@@ -20,7 +21,15 @@ class FragmentOnlineActivityModel : BaseModel(), IFragmentOnlineActivityModel {
         val service = ApiGenerator.getApiService(OnlineActivityService::class.java)
         service.requestOnlineActivityActivity()
                 .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .map { onlineActivityBean ->
+                    onlineActivityBean.text.forEach { text ->
+                        text.QR = "$API_BASE_IMG_URL${text.QR}"
+                        text.photo = "$API_BASE_IMG_URL${text.photo}"
+                    }
+                    onlineActivityBean.text
+                }
                 .observeOn(AndroidSchedulers.mainThread())
-                .safeSubscribeBy { callback(it.text) }
+                .safeSubscribeBy { callback(it) }
     }
 }
